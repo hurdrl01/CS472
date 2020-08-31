@@ -2,12 +2,13 @@
 Author: Ryan Hurd
 Class: CS 472
 Project 1 - wcat.c
-Date: August 26, 2020
+Date: August 31, 2020
 */
 
 // Include statements
 #include <stdio.h>
 #include <stdlib.h>
+
 
 // Main function
 int main (int argc, char* argv[]) {
