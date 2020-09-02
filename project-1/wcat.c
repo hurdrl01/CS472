@@ -2,7 +2,7 @@
 Author: Ryan Hurd
 Class: CS 472
 Project 1 - wcat.c
-Date: August 31, 2020
+Date: September 2, 2020
 */
 
 // Include statements

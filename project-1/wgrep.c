@@ -2,7 +2,7 @@
 Author: Ryan Hurd
 Class: CS 472
 Project 1 - wgrep.c
-Date: August 31, 2020
+Date: September 2, 2020
 */
 
 // Preprocessor Directives
@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
 			if(fp == NULL) {								// If our file is NULL, return error
 				printf("wgrep: cannot open file\n");		// Prompt user
 				return 1;									// Return one to show error occured
-			}	// End if loop
+			}	// End nested if loop
 			
 			while((size = getline(&out, &len, fp)) != -1) {	// While there are lines to be got, get them
 				if(strstr(out, argv[1])) {					// Compare our output line with our argv word and see if it's in out
