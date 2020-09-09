@@ -10,6 +10,7 @@ Date: September 2, 2020
 #include <stdlib.h>
 
 // Function Header(s)
+int error(int flag);
 void writeAndPrint(int count, char prev);						// Function to write and print our infomration to a file
 void advan_count(int* count, char ch, char* prev);				// Function to advance count and set prev equal ch
 
