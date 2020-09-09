@@ -87,5 +87,3 @@ void advan_count(int* count, char ch, char* prev) {
 	*count += 1;												// Increment count by one
 	*prev = ch;													// Set prev equal to ch
 } // End advan_count() function definition
-
-

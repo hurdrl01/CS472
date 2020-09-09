@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
 				return error(flag = 2);										// Return our function's value to show error occured
 			}	// End nested if loop
 			
-			while((size = getline(&out, &len, stdin)) != -1) {				// While our size isn't negative one, keep iterating
+			while((size = getline(&out, &len, fp)) != -1) {				// While our size isn't negative one, keep iterating
 				vali_strstr(out, argv);										// Use our function to call strstr()
 			} // End while loop
 			
@@ -96,12 +96,9 @@ int size_ch(ssize_t size, char* out, size_t len, char* argv[]) {
 	flag = 1;
 	return error(flag);
 }
-
 void size_fp(ssize_t size, char* out, size_t len, FILE* fp, char* argv[]) {
 	while((size = getline(&out, &len, fp)) != -1) {
 		vali_strstr(out, argv);
 	}
 }
 */
-
-
