@@ -1,3 +1,11 @@
+/*
+Author: Ryan Hurd
+Class: Operating System Design - CS 47200
+Professor: Dr. Chen
+Date: 09/23/2020
+Purpose: project-3 - Process Shell
+*/
+
 // Include Statements
 #include <ctype.h>
 #include <regex.h>
@@ -8,7 +16,6 @@
 #include <unistd.h>
 
 // Global Variable Declarations
-#define MAX_ARGS 20
 #define SIZE 256
 
 FILE* in = NULL;
@@ -28,13 +35,6 @@ void* parse(void* arg);
 void exec_com(char* args[], int args_num, FILE* out);
 int search(char path[], char* firstArg);
 void redirect(FILE* out);
-
-/* TESTING PURPOSES
-b 34		// Breakpoint at while loop in main
-b 76		// Breakpoint at start of parse function
-b 131		// Breakpoint at start of exec_com function
-*/
-
 
 // Main Function
 int main(int argc, char** argv) {
@@ -134,12 +134,7 @@ void* parse(void* arg) {
 
 	char** ap = args;
 	while((*ap = strsep(&command, " \t")) != NULL) {
-		if((strcmp(*ap, "&") == 0) && (strcmp(*ap, "\0") != 0)) {
-			*ap = trim(*ap);
-            exec_com(ap - 1, args_num, output);
-            exec_com(ap + 1, args_num, output);
-            break;
-		} else if(**ap != '\0') {
+        if(**ap != '\0') {
 			*ap = trim(*ap);
 			ap++;
 			if(++args_num >= SIZE) {
