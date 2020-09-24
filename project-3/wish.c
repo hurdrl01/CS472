@@ -83,7 +83,7 @@ int main(int argc, char** argv) {
             	rc = fork();
             	if(rc == 0) {
             		analyze(&args[i]);
-            		atexit(clean);
+            		atexit(scrub);
             		exit(EXIT_SUCCESS);
             	} else if(rc < 0) {
             		print_err();
