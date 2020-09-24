@@ -21,30 +21,33 @@ Purpose: project-3 - Process Shell
 FILE* in = NULL;
 char* paths[SIZE] = {"/bin", NULL};
 char* line = NULL;
-
 int arg_count = 0;
-
 char *path_output = NULL;
 char *path_error = NULL;
 
+// Struct Creation
+struct function_args {
+    char *com;
+};
+
 // Function Prototypes
-void clean(void);
+void scrub(void);
 void print_err();
-char* trim(char* s);
-void* parse(void* arg);
+char* chop(char* s);
+void* analyze(void* arg);
 void exec_com(char* args[], int args_num, FILE* out);
-int search(char path[], char* firstArg);
-void redirect(FILE* out);
+int forage(char path[], char* firstArg);
+void digress(FILE* out);
 
 // Main Function
 int main(int argc, char** argv) {
-	int mode = 1;
+	int interactive_mode = 1;
 	in = stdin;
 	size_t linecap = 0;
 	ssize_t nread;
 
 	if(argc > 1) {
-		mode = 2;
+		interactive_mode = 2;
 		if(argc > 2 || (in = fopen(argv[1], "r")) == NULL) {
 			print_err();
 			exit(EXIT_FAILURE);
@@ -52,13 +55,53 @@ int main(int argc, char** argv) {
 	}
 
 	while(1) {
-		if(mode == 1) {
+		if(interactive_mode == 1) {
 			printf("wish> ");
 		}
 		if ((nread = getline(&line, &linecap, in)) > 0) {
-			parse(line);
-		} else if(feof(in) != 0) {
-			atexit(clean);
+			char *com;
+            int com_num = 0;
+
+            struct function_args args[SIZE];
+
+            if(line[nread-1] == '\n') {
+            	line[nread-1] = '\0';
+            }
+
+            char* temp = line;
+
+            while((com = strsep(&temp, "&")) != NULL) {
+			if (com[0] != '\0'){
+                    args[com_num++].com = strdup(com);
+                    if (com_num >= SIZE){
+                        break;
+                    }
+                }
+            }
+            for(int i = 0; i < com_num - 1; i++) {
+            	int rc;
+            	rc = fork();
+            	if(rc == 0) {
+            		analyze(&args[i]);
+            		atexit(clean);
+            		exit(EXIT_SUCCESS);
+            	} else if(rc < 0) {
+            		print_err();
+            	}
+            }
+            if(com_num != 0) {
+            	analyze(&args[com_num - 1]);
+            }
+            for(int i = 0; i < com_num - 1; i++) {
+                wait(NULL);
+            }
+            for(int i = 0; i < com_num; i++) {
+            	if(args[i].com != NULL) {
+            		free(args[i].com);
+            	}
+            }
+        } else if(feof(in) != 0) {
+			atexit(scrub);
 			exit(EXIT_SUCCESS);
 		}
 	}
@@ -68,7 +111,7 @@ int main(int argc, char** argv) {
 
 
 // Function Definitions
-void clean(void) {
+void scrub(void) {
 	free(line);
 	fclose(in);
 }
@@ -78,7 +121,7 @@ void print_err() {
 	write(STDERR_FILENO, error_message, strlen(error_message));
 }
 
-char* trim(char* s) {
+char* chop(char* s) {
 	while(isspace(*s)) {
 		s++;
 	}
@@ -93,22 +136,23 @@ char* trim(char* s) {
 	return s;
 }
 
-void* parse(void* arg) {
+void* analyze(void* arg) {
 	char* args[SIZE];
 	int args_num = 0;
 	FILE* output = stdout;
-	char* commandLine = arg;
+	struct function_args *fun_args = (struct function_args *) arg;
+	char *commandLine = fun_args->com;
 
-	char* command = strsep(&commandLine, ">");
-	
-	if(command == NULL || *command == '\0') {
+	char* com = strsep(&commandLine, ">");
+
+	if(com == NULL || *com == '\0') {
 		print_err();
 		return NULL;
 	}
 
-	command = trim(command);
+	com = chop(com);
 	
-	if(strncmp(command, "&", strlen(command)) == 0) {
+	if(strncmp(com, "&", strlen(com)) == 0) {
 		return NULL;
 	}
 
@@ -126,16 +170,17 @@ void* parse(void* arg) {
 		}
 		regfree(&reg);
 
-		if((output = fopen(trim(commandLine), "w")) == NULL) {
+		if((output = fopen(chop(commandLine), "w")) == NULL) {
 			print_err();
 			return NULL;
 		}
 	}
 
 	char** ap = args;
-	while((*ap = strsep(&command, " \t")) != NULL) {
-        if(**ap != '\0') {
-			*ap = trim(*ap);
+	while((*ap = strsep(&com, " \t")) != NULL) {
+		
+		if(**ap != '\0') {
+			*ap = chop(*ap);
 			ap++;
 			if(++args_num >= SIZE) {
 				break;
@@ -143,7 +188,7 @@ void* parse(void* arg) {
 		}
 	}
 
-	if(args_num > 0) {
+	if(args_num > 0) {	// && flag == 0
 		exec_com(args, args_num, output);
 	}
 
@@ -156,7 +201,7 @@ void exec_com(char* args[], int args_num, FILE* out) {
 			print_err();
 		}
 		else {
-			atexit(clean);
+			atexit(scrub);
 			exit(EXIT_SUCCESS);
 		}
 	} else if(strcmp(args[0], "cd") == 0) {
@@ -174,16 +219,19 @@ void exec_com(char* args[], int args_num, FILE* out) {
 		paths[i + 1]  = NULL;
 	} else {
 		char path[SIZE];
-		if(search(path, args[0]) == 0) {
+		if(forage(path, args[0]) == 0) {
 			pid_t pid = fork();
 			if(pid == -1) {
 				print_err();
 			}
 			else if(pid == 0) {
-				redirect(out);
+				digress(out);
+				char* temp = args[0];
 				if(execv(path, args) == -1) {
 					print_err();
 				}
+				free(args[0]);
+				args[0] = temp;
 			} else {
 				waitpid(pid, NULL, 0);
 			}
@@ -193,7 +241,7 @@ void exec_com(char* args[], int args_num, FILE* out) {
 	}
 }
    
-int search(char path[], char* firstArg) {
+int forage(char path[], char* firstArg) {
 	int i = 0;
 	while(paths[i] != NULL) {
 		snprintf(path, SIZE, "%s/%s", paths[i], firstArg);
@@ -205,7 +253,7 @@ int search(char path[], char* firstArg) {
 	return -1;
 }
 
-void redirect(FILE* out) {
+void digress(FILE* out) {
 	int outFileno;
 	if((outFileno = fileno(out)) == -1) {
 		print_err();
