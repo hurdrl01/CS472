@@ -27,13 +27,13 @@ char *path_error = NULL;
 
 // Struct Creation
 struct function_args {
-    char *com;
+    char *arguments;
 };
 
 // Function Prototypes
 void scrub(void);
 void print_err();
-char* chop(char* s);
+char* chop(char* w);
 void* analyze(void* arg);
 void exec_com(char* args[], int args_num, FILE* out);
 int forage(char path[], char* firstArg);
@@ -43,8 +43,8 @@ void digress(FILE* out);
 int main(int argc, char** argv) {
 	int interactive_mode = 1;
 	in = stdin;
-	size_t linecap = 0;
-	ssize_t nread;
+	size_t linemax = 0;
+	ssize_t arg_line;
 
 	if(argc > 1) {
 		interactive_mode = 2;
@@ -58,46 +58,46 @@ int main(int argc, char** argv) {
 		if(interactive_mode == 1) {
 			printf("wish> ");
 		}
-		if ((nread = getline(&line, &linecap, in)) > 0) {
-			char *com;
-            int com_num = 0;
+		if ((arg_line = getline(&line, &linemax, in)) > 0) {
+			char *arguments;
+            int argument_num = 0;
 
             struct function_args args[SIZE];
 
-            if(line[nread-1] == '\n') {
-            	line[nread-1] = '\0';
+            if(line[arg_line-1] == '\n') {
+            	line[arg_line-1] = '\0';
             }
 
-            char* temp = line;
+            char* line_temp = line;
 
-            while((com = strsep(&temp, "&")) != NULL) {
-			if (com[0] != '\0'){
-                    args[com_num++].com = strdup(com);
-                    if (com_num >= SIZE){
+            while((arguments = strsep(&line_temp, "&")) != NULL) {
+			if (arguments[0] != '\0'){
+                    args[argument_num++].arguments = strdup(arguments);
+                    if (argument_num >= SIZE){
                         break;
                     }
                 }
             }
-            for(int i = 0; i < com_num - 1; i++) {
-            	int rc;
-            	rc = fork();
-            	if(rc == 0) {
+            for(int i = 0; i < argument_num - 1; i++) {
+            	int child;
+            	child = fork();
+            	if(child == 0) {
             		analyze(&args[i]);
             		atexit(scrub);
             		exit(EXIT_SUCCESS);
-            	} else if(rc < 0) {
+            	} else if(child < 0) {
             		print_err();
             	}
             }
-            if(com_num != 0) {
-            	analyze(&args[com_num - 1]);
+            if(argument_num != 0) {
+            	analyze(&args[argument_num - 1]);
             }
-            for(int i = 0; i < com_num - 1; i++) {
+            for(int i = 0; i < argument_num - 1; i++) {
                 wait(NULL);
             }
-            for(int i = 0; i < com_num; i++) {
-            	if(args[i].com != NULL) {
-            		free(args[i].com);
+            for(int i = 0; i < argument_num; i++) {
+            	if(args[i].arguments != NULL) {
+            		free(args[i].arguments);
             	}
             }
         } else if(feof(in) != 0) {
@@ -121,19 +121,19 @@ void print_err() {
 	write(STDERR_FILENO, error_message, strlen(error_message));
 }
 
-char* chop(char* s) {
-	while(isspace(*s)) {
-		s++;
+char* chop(char* w) {
+	while(isspace(*w)) {
+		w++;
 	}
-	if(*s == '\0') {
-		return s;
+	if(*w == '\0') {
+		return w;
 	}
-	char* end = s + strlen(s) - 1;
-	while(end > s && isspace(*end)) {
+	char* end = w + strlen(w) - 1;
+	while(end > w && isspace(*end)) {
 		end--;
 	}
 	end[1] = '\0';
-	return s;
+	return w;
 }
 
 void* analyze(void* arg) {
@@ -141,18 +141,18 @@ void* analyze(void* arg) {
 	int args_num = 0;
 	FILE* output = stdout;
 	struct function_args *fun_args = (struct function_args *) arg;
-	char *commandLine = fun_args->com;
+	char *commandLine = fun_args->arguments;
 
-	char* com = strsep(&commandLine, ">");
+	char* arguments = strsep(&commandLine, ">");
 
-	if(com == NULL || *com == '\0') {
+	if(arguments == NULL || *arguments == '\0') {
 		print_err();
 		return NULL;
 	}
 
-	com = chop(com);
+	arguments = chop(arguments);
 	
-	if(strncmp(com, "&", strlen(com)) == 0) {
+	if(strncmp(arguments, "&", strlen(arguments)) == 0) {
 		return NULL;
 	}
 
@@ -176,12 +176,12 @@ void* analyze(void* arg) {
 		}
 	}
 
-	char** ap = args;
-	while((*ap = strsep(&com, " \t")) != NULL) {
+	char** x = args;
+	while((*x = strsep(&arguments, " \t")) != NULL) {
 		
-		if(**ap != '\0') {
-			*ap = chop(*ap);
-			ap++;
+		if(**x != '\0') {
+			*x = chop(*x);
+			x++;
 			if(++args_num >= SIZE) {
 				break;
 			}
@@ -226,12 +226,12 @@ void exec_com(char* args[], int args_num, FILE* out) {
 			}
 			else if(pid == 0) {
 				digress(out);
-				char* temp = args[0];
+				char* line_temp = args[0];
 				if(execv(path, args) == -1) {
 					print_err();
 				}
 				free(args[0]);
-				args[0] = temp;
+				args[0] = line_temp;
 			} else {
 				waitpid(pid, NULL, 0);
 			}
