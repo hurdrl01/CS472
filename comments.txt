@@ -30,3 +30,19 @@ wzip.c:28:10: error: implicit declaration of function ‘error’ [-Werror=impli
           ^
 cc1: all warnings being treated as errors
     wzip failed to build
+
+
+Project 4:
+-50 The ratio for ticks-used is not close enough to the ratio of tickets
+$ spin 6 100000000 &;spin 3 100000000 &
+$ tickets: 1 	 pid: 6 	 ticks-used: 1
+tickets: 1 	 pid: 5 	 ticks-used: 6
+tickets: 1 	 pid: 6 	 ticks-used: 2
+tickets: 6 	 pid: 5 	 ticks-used: 21
+tickets: 3 	 pid: 6 	 ticks-used: 422
+tickets: 6 	 pid: 5 	 ticks-used: 953
+zombie!
+tickets: 3 	 pid: 6 	 ticks-used: 938
+zombie!
+
+the ratio for 3 6 should be 1:2, the ratio for ticks-used is 2.258
