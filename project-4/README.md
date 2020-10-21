@@ -5,10 +5,10 @@ Course: CS 472 - Operating System Design<br/>
 Due Date: October 7, 2020, 11:59 PM<br/> 
 
 
-# Project 4 Description
+## Project 4 Description
 Project 4 consists of a lottery scheduler in XV6  which allows tickets to be used to schedule process using only one CPU at a time.
 
-# Files Changed
+## Files Changed
 The files changed in this implementation vs. the source for XV6 have been:
 
 Makefile - Change CPU number to 1, 
@@ -30,4 +30,4 @@ usys.S - Script for using system calls, add system calls settickets() and getpin
 spin.c - main function, allowing  
 pstat.h - Provide pstat structure which gives the information related to scheduling a process 
 	(tickets, inuse, ticks, etc.)  
-main.c - implemented the main function  
+main.c -   
