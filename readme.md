@@ -2,7 +2,7 @@
 Author: Ryan Hurd<br/>
 Professor: Dr. Chen<br/>
 
-# Projects 
+## Projects 
 project-1 - wgcat.c, wgrep.c, wzip.c, wunzip.c implementation<br/>
 project-2 - XV6 implementation<br/>
 project-3 - Wisconsin Shell Implementation<br/>
