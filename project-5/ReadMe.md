@@ -1,4 +1,4 @@
-# Project 5 - Introduction to xv6 Virtual Memory<br/>    
+# Project 5 - Introduction to xv6 Virtual Memory   
 Author: Ryan Hurd<br/>
 Professor: Dr. Chen<br/>
 Course: CS 472 - Operating System Design<br/>  

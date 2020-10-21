@@ -1,4 +1,4 @@
-# Project 3 - Unix Shell<br/>    
+# Project 3 - Unix Shell
 Author: Ryan Hurd<br/>
 Professor: Dr. Chen<br/>
 Course: CS 472 - Operating System Design<br/>  

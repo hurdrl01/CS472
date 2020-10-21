@@ -1,4 +1,4 @@
-# Project 1 - Unix Utilities<br/>
+# Project 1 - Unix Utilities
 Author: Ryan Hurd<br/>
 Professor: Dr. Chen<br/>
 Course: CS 472 - Operating System Design<br/>  

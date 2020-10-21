@@ -1,4 +1,4 @@
-# Project 4 - Lottery Scheduler<br/>    
+# Project 4 - Lottery Scheduler   
 Author: Ryan Hurd<br/>
 Professor: Dr. Chen<br/>
 Course: CS 472 - Operating System Design<br/>  

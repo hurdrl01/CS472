@@ -1,4 +1,4 @@
-# Project 2 - Introduction to Kernel Hacking<br/>
+# Project 2 - Introduction to Kernel Hacking
 Author: Ryan Hurd<br/>
 Professor: Dr. Chen<br/>
 Course: CS 472 - Operating System Design<br/> 
