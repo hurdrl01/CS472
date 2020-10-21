@@ -1,6 +1,6 @@
 # Projects for CS472 - Operating System Design
- Author: Ryan Hurd<br/>
- Professor: Dr. Chen<br/>
+Author: Ryan Hurd<br/>
+Professor: Dr. Chen<br/>
 
 # Projects 
 project-1 - wgcat.c, wgrep.c, wzip.c, wunzip.c implementation<br/>

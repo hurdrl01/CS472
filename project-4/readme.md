@@ -1,8 +1,8 @@
-# Project 4 - Lottery Scheduler<br/>    
-Author: Ryan Hurd<br/>
-Professor: Dr. Chen<br/>
-Course: CS 472 - Operating System Design<br/>  
-Due Date: October 7, 2020, 11:59 PM<br/> 
+# Project 4 - Lottery Scheduling in XV6
+Author: Ryan Hurd  
+Class: CS472 - Operating System Design  
+Professor: Dr. Chen  
+Date: 10/06/2020  
 
 
 # Project 4 Description
