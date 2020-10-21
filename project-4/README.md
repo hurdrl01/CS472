@@ -30,4 +30,4 @@ usys.S - Script for using system calls, add system calls settickets() and getpin
 spin.c - main function, allowing  
 pstat.h - Provide pstat structure which gives the information related to scheduling a process 
 	(tickets, inuse, ticks, etc.)  
-main.c -   
+main.c - implemented the main function  
