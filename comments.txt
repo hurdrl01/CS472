@@ -1,0 +1,48 @@
+Project 1:
+-12 test for wgrep 1, 5, 6, 7 incorrect
+
+[31mtest 1: out incorrect[0m
+  what results should be found in file: tests/1.out
+  what results produced by your program: tests-out/1.out
+  compare the two using diff, cmp, or related tools to debug, e.g.:
+  prompt> diff tests/1.out tests-out/1.out
+[31mtest 5: out incorrect[0m
+  what results should be found in file: tests/5.out
+  what results produced by your program: tests-out/5.out
+  compare the two using diff, cmp, or related tools to debug, e.g.:
+  prompt> diff tests/5.out tests-out/5.out
+[31mtest 6: out incorrect[0m
+  what results should be found in file: tests/6.out
+  what results produced by your program: tests-out/6.out
+  compare the two using diff, cmp, or related tools to debug, e.g.:
+  prompt> diff tests/6.out tests-out/6.out
+[31mtest 7: out incorrect[0m
+  what results should be found in file: tests/7.out
+  what results produced by your program: tests-out/7.out
+  compare the two using diff, cmp, or related tools to debug, e.g.:
+  prompt> diff tests/7.out tests-out/7.out
+
+-25 wzip.c failed to build
+
+wzip.c: In function ‘main’:
+wzip.c:28:10: error: implicit declaration of function ‘error’ [-Werror=implicit-function-declaration]
+   return error(flag);          // Our function will print the error(0), and prompt user on what's wrong
+          ^
+cc1: all warnings being treated as errors
+    wzip failed to build
+
+
+Project 4:
+-50 The ratio for ticks-used is not close enough to the ratio of tickets
+$ spin 6 100000000 &;spin 3 100000000 &
+$ tickets: 1 	 pid: 6 	 ticks-used: 1
+tickets: 1 	 pid: 5 	 ticks-used: 6
+tickets: 1 	 pid: 6 	 ticks-used: 2
+tickets: 6 	 pid: 5 	 ticks-used: 21
+tickets: 3 	 pid: 6 	 ticks-used: 422
+tickets: 6 	 pid: 5 	 ticks-used: 953
+zombie!
+tickets: 3 	 pid: 6 	 ticks-used: 938
+zombie!
+
+the ratio for 3 6 should be 1:2, the ratio for ticks-used is 2.258
