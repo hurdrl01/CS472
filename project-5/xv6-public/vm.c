@@ -385,6 +385,79 @@ copyout(pde_t *pgdir, uint va, void *p, uint len)
   return 0;
 }
 
+//mprotect system call makes page table entries only readable, non-writable
+int
+mprotect(void *addr, int len){
+  struct proc *curproc = myproc();
+  
+  //Check if addr points to a region that is not currently a part of the address space
+  if(len <= 0 || (int)addr+len*PGSIZE>curproc->sz){
+    cprintf("\nwrong len\n");
+    return -1;
+  }
+
+  //Check if addr is not page aligned
+  if((int)(((int) addr) % PGSIZE )  != 0){
+    cprintf("\nwrong addr %p\n", addr);
+    return -1;
+  }
+  //loop for each page
+  pte_t *pte;
+  int i;
+  for (i = (int) addr; i < ((int) addr + (len) *PGSIZE); i+= PGSIZE){
+    // Getting the address of the PTE in the current process's page table (pgdir)
+    // that corresponds to virtual address (i)
+    pte = walkpgdir(curproc->pgdir,(void*) i, 0);
+    if(pte && ((*pte & PTE_U) != 0) && ((*pte & PTE_P) != 0) ){
+      *pte = (*pte) & (~PTE_W) ; //Clearing the write bit 
+      cprintf("\nPTE : 0x%p\n", pte);
+    } else {
+      return -1;
+    }
+  }
+  //Reloading the Control register 3 with the address of page directory 
+  //to flush TLB
+  lcr3(V2P(curproc->pgdir));  
+return 0;
+}
+
+//mprotect system call makes page table entries both readable and writable
+int
+munprotect(void *addr, int len){
+  struct proc *curproc = myproc();
+  
+  //Check if addr points to a region that is not currently a part of the address space
+  if(len <= 0 || (int)addr+len*PGSIZE>curproc->sz){
+    cprintf("\nwrong len\n");
+    return -1;
+  }
+
+  //Check if addr is not page aligned
+  if((int)(((int) addr) % PGSIZE )  != 0){
+    cprintf("\nwrong addr %p\n", addr);
+    return -1;
+  }
+  //loop for each page
+  pte_t *pte;
+  int i;
+  for (i = (int) addr; i < ((int) addr + (len) *PGSIZE); i+= PGSIZE){
+    // Getting the address of the PTE in the current process's page table (pgdir)
+    // that corresponds to virtual address (i)
+    pte = walkpgdir(curproc->pgdir,(void*) i, 0);
+    if(pte && ((*pte & PTE_U) != 0) && ((*pte & PTE_P) != 0) ){
+      *pte = (*pte) | (PTE_W) ; //Setting the write bit 
+      cprintf("\nPTE : 0x%p\n", pte);
+    } else {
+      return -1;
+    }
+  }
+  //Reloading the Control register 3 with the address of page directory 
+  //to flush TLB
+  lcr3(V2P(curproc->pgdir));
+  
+  return 0;
+}
+
 //PAGEBREAK!
 // Blank page.
 //PAGEBREAK!
