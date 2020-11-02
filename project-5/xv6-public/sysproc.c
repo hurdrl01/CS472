@@ -57,6 +57,26 @@ sys_sbrk(void)
 }
 
 int
+sys_mprotect(void)
+{
+  int d;
+  int n = 0;
+  if(argint(0, &d)<0 || argint(1, &n)<0)
+    return -1;
+  return mprotect((void *)d,n);
+}
+
+int
+sys_munprotect(void)
+{
+  int d;
+  int n = 0;
+  if(argint(0, &d)<0 || argint(1, &n)<0)
+    return -1;
+  return munprotect((void *)d,n);
+}
+
+int
 sys_sleep(void)
 {
   int n;
@@ -88,22 +108,4 @@ sys_uptime(void)
   xticks = ticks;
   release(&tickslock);
   return xticks;
-}
-
-int
-sys_mprotect(void){
-  int d;
-  int n = 0;
-  if(argint(0, &d)<0 || argint(1, &n)<0)
-    return -1;
-  return mprotect((void *)d,n);
-}
-
-int
-sys_munprotect(void){
-  int d;
-  int n = 0;
-  if(argint(0, &d)<0 || argint(1, &n)<0)
-    return -1;
-  return munprotect((void *)d,n);
 }

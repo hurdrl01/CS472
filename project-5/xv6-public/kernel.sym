@@ -1,5 +1,5 @@
 80100000 .text
-80107140 .rodata
+80107100 .rodata
 80108000 .data
 8010a520 .bss
 00000000 .debug_line
@@ -16,7 +16,7 @@
 8010a558 panicked
 801003f0 consputc
 80100580 printint
-801071b0 digits.1605
+80107170 digits.1605
 00000000 exec.c
 00000000 file.c
 00000000 fs.c
@@ -34,9 +34,9 @@
 00000000 kalloc.c
 00000000 kbd.c
 8010a5b4 shift.1446
-801074e0 shiftcode
-801073e0 togglecode
-801073c0 charcode.1447
+801074a0 shiftcode
+801073a0 togglecode
+80107380 charcode.1447
 80108200 normalmap
 80108100 shiftmap
 80108000 ctlmap
@@ -55,12 +55,12 @@
 80103590 allocproc
 8010a000 first.1647
 8010a5b8 initproc
-801077a0 states.1673
+80107760 states.1673
 00000000 sleeplock.c
 00000000 spinlock.c
 00000000 string.c
 00000000 syscall.c
-80107820 syscalls
+801077e0 syscalls
 00000000 sysfile.c
 80104860 create
 80104a00 argfd.constprop.0
@@ -211,7 +211,7 @@
 80102360 freerange
 80105fcc vector125
 80106b10 allocuvm
-801056cf trapret
+801056d2 trapret
 80106407 vector216
 80105d9e vector63
 80105c51 vector26
@@ -226,7 +226,7 @@
 80105bcd vector10
 8010638f vector206
 80101740 iunlock
-80105520 sys_sleep
+801055e0 sys_sleep
 801065db vector255
 80106263 vector181
 80105d7a vector59
@@ -239,7 +239,7 @@
 80105d0e vector47
 80106497 vector228
 80105ce1 vector42
-80105660 sys_munprotect
+80105580 sys_munprotect
 80105f69 vector114
 80106e90 uva2ka
 8010621b vector175
@@ -352,7 +352,7 @@
 80105cf3 vector44
 8011267c lapic
 80105e25 vector78
-801056b7 alltraps
+801056ba alltraps
 80106203 vector173
 80105f84 vector117
 80105e49 vector82
@@ -386,11 +386,11 @@
 80105e88 vector89
 80105e7f vector88
 801057b0 trap
-801055d0 sys_uptime
+80105690 sys_uptime
 8010624b vector179
 80105c99 vector34
 80105d05 vector46
-80107050 munprotect
+80107030 munprotect
 8010602f vector134
 8010645b vector223
 80114ca0 idt
@@ -428,7 +428,7 @@
 80106197 vector164
 80103fb0 procdump
 80105fa8 vector121
-80105600 sys_mprotect
+80105520 sys_mprotect
 80105b30 uartputc
 80105ba2 vector5
 801061bb vector167

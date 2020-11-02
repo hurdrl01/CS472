@@ -16,7 +16,7 @@ main(int argc, char *argv[])
   } else {
   	printf(1, "mprotect call succeeded\n");
   }
-  
+
   *p = value;
 
   if (munprotect((void *)p, 1) == -1) {
