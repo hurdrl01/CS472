@@ -29,8 +29,6 @@ Inside syscall.c, added declarations for both mprotect and munprotect.<br/>
 In sysproc.c, added functions for both mprotect and munprotect, check conditional then return -1 if argint < 0.<br/>
 Added system calls to user.h for mprotect and munprotect and same for usys.S.<br/>
 
-In vm.c, function mprotect is checking if the length is less than or greater than the length of a page, if it is then prints out an error and returns -1.<br/>
-Then, checks if the page is aligned, if not it reurns -1. Then the function loops through each page getting the PTE in the current process's pgdir.<br/>
-Then it clears the writing bit making the page not writable. after the loop finishes, it then reloads the control register with the adress of the page directory.<br/>
+In vm.c, function mprotect is checking if the length is less than or greater than the length of a page, if it is then prints out an error and returns -1. Then, checks if the page is aligned, if not it reurns -1. Then the function loops through each page getting the PTE in the current process's pgdir. Then it clears the writing bit making the page not writable. after the loop finishes, it then reloads the control register with the adress of the page directory.<br/>
 
 The munprotect does the opposite to the above function in which it sets the writing bit rather than clearing it making the page both readable and writable.<br/>
