@@ -1,11 +1,11 @@
-# Project 5 - Introduction to xv6 Virtual Memory   
-Author: Ryan Hurd & Vinamra Munot<br/>
+#Project 5 - Introduction to xv6 Virtual Memory   
+##Author(s): Ryan Hurd & Vinamra Munot<br/>
 Professor: Dr. Chen<br/>
 Course: CS 472 - Operating System Design<br/>  
 Due Date: November 4, 2020 11:59 PM<br/>
 
-## Project Changes 
-### We used a paired programming method, we programmed on one machine sharing ideas and code until we arrived at a finished product
+##Project Changes 
+###We used a paired programming method, we programmed on one machine sharing ideas and code until we arrived at a finished product
 exec.c - Changed page size to the proper value.<br/>
 Makefile - Added user programs, extras, required flag, and updated CPU count.<br/>
 null1.c - File for testing.<br/>
