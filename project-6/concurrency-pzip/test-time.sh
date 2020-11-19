@@ -5,5 +5,5 @@ if ! [[ -x pzip ]]; then
     exit 1
 fi
 
-time ./run-tests.sh -c -v $*
+time ./run-tests.sh $*
 
