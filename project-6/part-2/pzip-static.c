@@ -33,8 +33,8 @@ Due Date: December 2, 2020 11:59 PM
 
 // Struct Creations
 typedef struct res {
-    int count;
-    char character;
+    int num;
+    char ch;
 } Res;
 
 typedef struct job {
@@ -52,7 +52,7 @@ typedef struct queue {
 
 
 // Function Headers
-void makeResult(int count, char character, Res *buff, int index);
+void makeResult(int num, char ch, Res *buff, int index);
 void *process(void *arg);
 
 
@@ -114,8 +114,8 @@ int main(int argc, char** argv) {
 		for (int i = 0; i < numProcs; i++) {
 			pthread_join(pthr[i], NULL);
 			if(buff != NULL) {
-				if(buff[index - 1].character == tempJob[i].resBuff[0].character) {
-					tempJob[i].resBuff[0].count += buff[index - 1].count;
+				if(buff[index - 1].ch == tempJob[i].resBuff[0].ch) {
+					tempJob[i].resBuff[0].num += buff[index - 1].num;
 					index--;
 				}
 			}
@@ -139,10 +139,10 @@ int main(int argc, char** argv) {
 
 
 // Function Definitions
-void makeResult(int count, char character, Res *buff, int index) {
+void makeResult(int num, char ch, Res *buff, int index) {
 	Res result;	
-	result.count = count;
-	result.character = character;
+	result.num = num;
+	result.ch = ch;
 	buff[index] = result;
 }
 
@@ -151,8 +151,8 @@ void *process(void *arg) {
 	char *address = zip->readBuff;
 	int len = zip->readSize;
 
-	char character = address[0];
-	int count = 0;
+	char ch = address[0];
+	int num = 0;
 	int size = 10;
 	int index = 0;
 
@@ -161,21 +161,21 @@ void *process(void *arg) {
 	for(int i = 0; i < len; i++) {
 		char temp = address[i];
 
-		if(temp == character) {
-			count++;
+		if(temp == ch) {
+			num++;
 		} else {
 			if(i > size) {
 				size *= 2;
 				buff = realloc(buff, (size * sizeof(Res)));
 			}
-			makeResult(count, character, buff, index);
+			makeResult(num, ch, buff, index);
 			
-			character = temp;
-			count = 1;
+			ch = temp;
+			num = 1;
 			index++;
 		}
 	}
-	makeResult(count, character, buff, index);
+	makeResult(num, ch, buff, index);
 	index++;
 
 	zip->resBuff = buff;
