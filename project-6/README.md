@@ -18,8 +18,10 @@ Using multiple file descriptors, we were able to iterate through the address buf
 ### **pthread()** <br/> 
 POSIX.1 specifies a set of interfaces (functions, header files) for  threaded programming commonly known as POSIX threads, or Pthreads. A single process can contain multiple threads, all of which are executing the same program.  These threads share the same global memory (data and heap segments), but each thread has its own stack (automatic variables).<br/>
 
+ <!--
  ### **** <br/> 
  <br/>
+-->
 
  ## For Part Three:  Multiple threads using producer/consumer, but with unbounded buffer <br/>
 ### **** <br/> 
