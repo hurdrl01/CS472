@@ -1,5 +1,5 @@
 rm pzip 
-gcc -o pzip pzip-dynamic.c -Wall -Werror -pthread -O
+gcc -o pzip pzip.c -Wall -Werror -pthread -O
 ./test-time.sh 
 valgrind --leak-check=full ./pzip tests/1.in
 echo
