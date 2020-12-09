@@ -3,7 +3,7 @@ Project 6 - Parallel Zip
 Author(s): Ryan Hurd & Vinamra Munot
 Professor: Dr. Chen
 Course: CS 472 - Operating System Design
-Due Date: December 2, 2020 11:59 PM
+Due Date: December 9, 2020 11:59 PM
 */
 
 
