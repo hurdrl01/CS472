@@ -114,7 +114,7 @@ int main(int argc, char* argv[]){
 	// Print the output
 	printOutput();
 
-	//freeMemory();
+	freeMemory();
 	return 0;
 }
 
