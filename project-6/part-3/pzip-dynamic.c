@@ -54,12 +54,7 @@ struct fd{									// Contains file specific data for munmap
 	int size;
 } *files;
 
-struct buffer get() {						// Remove from q_tail index of the circular queue.
-  	struct buffer b = buf[q_tail]; 			// Dequeue the buffer.
-	q_tail = (q_tail + 1) % q_capacity;
-  	q_size--;
-  	return b;
-}
+
 
 
 
@@ -67,6 +62,12 @@ struct buffer get() {						// Remove from q_tail index of the circular queue.
 /*						FUNCTION HEADERS							  */
 ////////////////////////////////////////////////////////////////////////
 void put(struct buffer b);
+struct buffer get() {						// Remove from q_tail index of the circular queue.
+  	struct buffer b = buf[q_tail]; 			// Dequeue the buffer.
+	q_tail = (q_tail + 1) % q_capacity;
+  	q_size--;
+  	return b;
+}
 void* producer(void *arg);
 struct output RLECompress(struct buffer temp);
 int calculateOutputPosition(struct buffer temp);
