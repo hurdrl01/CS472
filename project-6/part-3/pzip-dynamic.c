@@ -20,7 +20,7 @@ int total_threads; 							// Total number of threads that will be created for co
 int page_size; 								// Page size = 4096 Bytes
 int num_files; 								// Total number of the files passed as the arguments.
 int isComplete=0; 							// Flag to wakeup 
-Flag needed to wakeup any sleeping threads at the end of program.
+//Flag needed to wakeup any sleeping threads at the end of program.
 
 int total_pages; 							// To compress output
 int q_head=0; 								// Queue head.
