@@ -1,78 +1,126 @@
-///////////////////Libraries///////////////////////
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include<string.h>
-#include <sys/mman.h> //Library for mmap
-#include <pthread.h>
-#include <sys/stat.h> //Library for struct stat
-#include <sys/sysinfo.h>
-#include <unistd.h>
-///////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+/*							LIBRARIES								  */
+////////////////////////////////////////////////////////////////////////
+#include <fcntl.h>							// Library for file control options
+#include <stdio.h>							// Library for standard input/output
+#include <stdlib.h>							// Library for general purpose functionality
+#include<string.h>							// Library for strings
+#include <sys/mman.h> 						// Library for mmap
+#include <pthread.h>						// Library for pthread
+#include <sys/stat.h> 						// Library for struct stat
+#include <sys/sysinfo.h>					// Library for system info (nproc)
+#include <unistd.h>							// Library for POSIX operating system API
 
-//////////////////////NOTES/////////////////////////////
-/*void *mmap(void *addr, size_t length, int prot, int flags,
-                  int fd, off_t offset);
-Struct stat contains:
-dev_t     st_dev     Device ID of device containing file. 
-ino_t     st_ino     File serial number. 
-mode_t    st_mode    Mode of file (see below). 
-nlink_t   st_nlink   Number of hard links to the file. 
-uid_t     st_uid     User ID of file. 
-gid_t     st_gid     Group ID of file. 
-[XSI][Option Start]
-dev_t     st_rdev    Device ID (if file is character or block special). 
-[Option End]
-off_t     st_size    For regular files, the file size in bytes. 
-                     For symbolic links, the length in bytes of the 
-                     pathname contained in the symbolic link. 
-Queue code and logic referenced from Professor Remzi's OS Book:
-http://pages.cs.wisc.edu/~remzi/Classes/537/Spring2018/Book/threads-cv.pdf
-*/
-//////////////////////////////////////////////////////////
 
-/////////////////GLOBAL VARIABLES////////////////////////
-int total_threads; //Total number of threads that will be created for consumer.
-int page_size; //Page size = 4096 Bytes
-int num_files; //Total number of the files passed as the arguments.
-int isComplete=0; //Flag needed to wakeup any sleeping threads at the end of program.
-int total_pages; //required for the compressed output
-int q_head=0; //Circular queue head.
-int q_tail=0; //Circular queue tail.
-#define q_capacity 10 //Circular queue current size. We can not have static array 
-//for buf which size is given as a variable, so use define. (Stackoverflow)
-int q_size=0; //Circular queue capacity.
+
+////////////////////////////////////////////////////////////////////////
+/*						GLOBAL VARIABLES							  */
+////////////////////////////////////////////////////////////////////////
+int total_threads; 							// Total number of threads that will be created for consumer.
+int page_size; 								// Page size = 4096 Bytes
+int num_files; 								// Total number of the files passed as the arguments.
+int isComplete=0; 							// Flag to wakeup 
+Flag needed to wakeup any sleeping threads at the end of program.
+
+int total_pages; 							// To compress output
+int q_head=0; 								// Queue head.
+int q_tail=0; 								// Queue tail.
+#define q_capacity 10 						// Queue current size
+int q_size=0; 								// Queue capacity.
 pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER, filelock=PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t empty = PTHREAD_COND_INITIALIZER, fill = PTHREAD_COND_INITIALIZER;
 int* pages_per_file;
-/////////////////////////////////////////////////////////
 
-/////////////////STRUCTURES///////////////////////////////
 
-//Contains the compressed output
-struct output {
+
+////////////////////////////////////////////////////////////////////////
+/*							STRUCTURES								  */
+////////////////////////////////////////////////////////////////////////
+struct output {								//Contains the compressed output
 	char* data;
 	int* count;
 	int size;
-}*out;
+} *out;
 
-//Contains page specific data of a specific file.
-struct buffer {
-    char* address; //Mapping address of the file_number file + page_number page
-    int file_number; //File Number
-    int page_number; //Page number
-    int last_page_size; //Page sized or (size_of_file)%page_size
-}buf[q_capacity];
+struct buffer {								// Contains page data specific to a file
+    char* address; 							// Address to map, file_number file + page_number page
+    int file_number; 						// File Number
+    int page_number; 						// Page number
+    int last_page_size; 					// Page sized 
+} buf[q_capacity];
 
-//Contains file specific data for munmap
-struct fd{
+struct fd{									// Contains file specific data for munmap
 	char* addr;
 	int size;
-}*files;
-////////////////////////////////////////////////////////
+} *files;
 
-/////////////////QUEUE Functions////////////////////////
+struct buffer get() {						// Remove from q_tail index of the circular queue.
+  	struct buffer b = buf[q_tail]; 			// Dequeue the buffer.
+	q_tail = (q_tail + 1) % q_capacity;
+  	q_size--;
+  	return b;
+}
 
+
+
+////////////////////////////////////////////////////////////////////////
+/*						FUNCTION HEADERS							  */
+////////////////////////////////////////////////////////////////////////
+void put(struct buffer b);
+void* producer(void *arg);
+struct output RLECompress(struct buffer temp);
+int calculateOutputPosition(struct buffer temp);
+void *consumer();
+void printOutput();
+void freeMemory();
+
+
+
+////////////////////////////////////////////////////////////////////////
+/*						MAIN FUNCTION								  */
+////////////////////////////////////////////////////////////////////////
+int main(int argc, char* argv[]){
+	// Check if less than two arguments are given
+	if(argc<2){
+		printf("pzip: file1 [file2 ...]\n");
+		exit(1);
+	}
+
+	// Variable creation and declaration
+	page_size = 4096;								// Size of a page
+	num_files=argc-1; 								// Number of files, necessary for producer
+	total_threads=get_nprocs(); 					// Number of processes consumer threads 
+	pages_per_file=malloc(sizeof(int)*num_files); 	// Number of pages per file
+    out=malloc(sizeof(struct output)* 512000*2); 	// Output variable
+	
+	// Create thread of producer to map files
+	pthread_t pid,cid[total_threads];
+	pthread_create(&pid, NULL, producer, argv+1); 	// argv[0] is not need, so we skip that by using argv + 1
+
+	// Create thread of consumer to compress all pages in a file
+	for (int i = 0; i < total_threads; i++) {
+        pthread_create(&cid[i], NULL, consumer, NULL);
+    }
+
+	// Wait for producers and consumer to finish
+    for (int i = 0; i < total_threads; i++) {
+        pthread_join(cid[i], NULL);
+    }
+
+	// Join the threads
+    pthread_join(pid,NULL);
+	
+	// Print the output
+	printOutput();
+
+	//freeMemory();
+	return 0;
+}
+
+
+////////////////////////////////////////////////////////////////////////
+/*					FUNCTION DEFINITIONS							  */
+////////////////////////////////////////////////////////////////////////
 //buf is the Buffer queue. Queue capacity by default = 10
 //Add at q_head index of the circular queue. 
 void put(struct buffer b){
@@ -81,19 +129,10 @@ void put(struct buffer b){
   	q_size++;
 }
 
-//Remove from q_tail index of the circular queue.
-struct buffer get(){
-  	struct buffer b = buf[q_tail]; //Dequeue the buffer.
-	q_tail = (q_tail + 1) % q_capacity;
-  	q_size--;
-  	return b;
-}
 
-////////////////////////////////////////////////////////
 
-////////////////////////PRODUCER/////////////////////////
-//Reference for MMAP code: http://man7.org/linux/man-pages/man2/mmap.2.html
-//Producer function to memory map the files passed as arguments.
+/*					Producer Stuff									  */
+// Producer function for memory mapping files that are passed as arguments
 void* producer(void *arg){
 	//Step 1: Get the file.
 	char** filenames = (char **)arg;
@@ -197,10 +236,10 @@ void* producer(void *arg){
 	//printf("producer exiting with queue_size %d\n",q_size);
 	return 0;
 }
-/////////////////////////////////////////////////////////////////////////
 
-///////////////////////////CONSUMER/////////////////////////////////////
 
+
+/*					Consumer Stuff									  */
 //Compresses the buffer object.
 struct output RLECompress(struct buffer temp){
 	struct output compressed;
@@ -219,26 +258,10 @@ struct output RLECompress(struct buffer temp){
 	compressed.size=countIndex;
 	compressed.data=realloc(tempString,countIndex);
 
-
 	return compressed;
 }
 
 
-//https://piazza.com/class/jcwd4786vss6ky?cid=571
-//You'll need some sort of variable to figure out where in the buffer you are in terms of bytes 
-//(i.e. where to add the next int or char). Each time you add an int to the buffer, 
-//you'll have to update that variable by 4, since an int is 4 bytes. Each time you add a char, 
-//you'll have to update the variable by 1 byte. At the end, the variable will also equal the size of the buffer. 
-//To use fwrite, you just need to pass in the buffer plus the size of the buffer, which is that variable.  
-/*
-// a simple example 
-char buffer[1000];
-
-int *p = &buffer[0];
-*p = 100;
-char *c = &buffer[4];
-*c = 'x';
-*/
 //Calculates the relative output position for the buffer object.
 int calculateOutputPosition(struct buffer temp){
 	int position=0;
@@ -276,9 +299,7 @@ void *consumer(){
 	return NULL;
 }
 
-////////////////////////////////////////////////////////////////////////
-/*							MAIN									  */
-////////////////////////////////////////////////////////////////////////
+/*					Main Stuff									  */
 
 void printOutput(){
 	char* finalOutput=malloc(total_pages*page_size*(sizeof(int)+sizeof(char)));
@@ -305,13 +326,8 @@ void printOutput(){
 	free(init);
 }
 
+
 void freeMemory(){
-	// for(int i=0;i<num_files;i++){
-	// 	if(munmap(files[i].addr,files[i].size)){
-	// 		printf("munmap failed\n");
-	// 		exit(1);
-	// 	}
-	// }
 	free(pages_per_file);
 	for(int i=0;i<total_pages;i++){
 		free(out[i].data);
@@ -319,44 +335,3 @@ void freeMemory(){
 	}
 	free(out);
 }
-
-int main(int argc, char* argv[]){
-	//Check if less than two arguments
-	if(argc<2){
-		printf("pzip: file1 [file2 ...]\n");
-		exit(1);
-	}
-
-	//Initialize all the global Variables.
-	//I took 4096 as page size but the program was running very slow,
-	//started trying out with huge random values, program execution
-	//decreased by atleast 1/4
-	page_size = 4096;//sysconf(_SC_PAGE_SIZE); //4096 bytes
-	num_files=argc-1; //Number of files, needed for producer.
-	total_threads=get_nprocs(); //Number of processes consumer threads 
-	pages_per_file=malloc(sizeof(int)*num_files); //Pages per file.
-	
-	//files=malloc(sizeof(struct fd)*num_files);
-	//Initially I was re-allocing out everytime to increase the size,
-	//but it lead to a race condition where consumer tried to put compressed
-	//output into an unallocated space.
-    out=malloc(sizeof(struct output)* 512000*2); 
-	//Create producer thread to map all the files.
-	pthread_t pid,cid[total_threads];
-	pthread_create(&pid, NULL, producer, argv+1); //argv + 1 to skip argv[0].
-
-	//Create consumer thread to compress all the pages per file.
-	for (int i = 0; i < total_threads; i++) {
-        pthread_create(&cid[i], NULL, consumer, NULL);
-    }
-
-    //Wait for producer-consumers to finish.
-    for (int i = 0; i < total_threads; i++) {
-        pthread_join(cid[i], NULL);
-    }
-    pthread_join(pid,NULL);
-	printOutput();
-	//freeMemory();
-	return 0;
-}
-//////////////////////////////////////////////////////////////////////////
